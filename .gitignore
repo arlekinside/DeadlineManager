@@ -1,0 +1,7 @@
+/gradlew
+/gradlew.bat
+/gradle/
+/build/
+/.idea/
+/src/main/.aws-sam/
+/src/main/java/com/github/arlekinside/BotConfig.java

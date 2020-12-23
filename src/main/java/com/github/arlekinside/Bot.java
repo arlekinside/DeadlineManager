@@ -12,8 +12,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 public class Bot extends TelegramWebhookBot {
 
-    private static Bot bot;
-
     protected Bot(){
     }
     @Override
@@ -32,6 +30,6 @@ public class Bot extends TelegramWebhookBot {
 
     @Override
     public String getBotPath() {
-        return BotConfig.WEBHOOK_URL; //arbitrary path to deliver updates on, username is an example.
+        return BotConfig.WEBHOOK_URL;
     }
 }

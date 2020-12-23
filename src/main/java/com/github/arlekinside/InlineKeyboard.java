@@ -37,12 +37,12 @@ public class InlineKeyboard {
         }
         return this;
     }
-    public InlineKeyboard button (InlineKeyboardButton inlineKeyboardButton){
-        inlineKeyboardButtons.add(inlineKeyboardButton);
-        return this;
-    }
     public InlineKeyboard button (String title, String callBackData){
         inlineKeyboardButtons.add(new InlineKeyboardButton().setText(title).setCallbackData(callBackData));
+        return this;
+    }
+    public InlineKeyboard buttonUrl (String title, String url){
+        inlineKeyboardButtons.add(new InlineKeyboardButton().setText(title).setUrl(url));
         return this;
     }
     public InlineKeyboard setChatID(long chatID){

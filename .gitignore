@@ -5,3 +5,5 @@
 /.idea/
 /src/main/.aws-sam/
 /src/main/java/com/github/arlekinside/BotConfig.java
+/.idea/
+/.gradle/

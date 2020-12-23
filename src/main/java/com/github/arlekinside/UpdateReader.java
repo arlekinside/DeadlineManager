@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 public class UpdateReader implements RequestStreamHandler{
 
     ObjectMapper objectMapper = new ObjectMapper();
-    private Commands1 commands;
     private Bot bot = new Bot();
 
     @Override
@@ -39,13 +38,13 @@ public class UpdateReader implements RequestStreamHandler{
     public void handleUpdate(Update update) {
         if (update.hasMessage()) {
             //Handle update in case it was a text message
-            Commands cmd = new Commands(bot, update.getMessage().getChatId(), update.getMessage().getText());
+            Commands cmd = new Commands(bot, update.getMessage());
             if (update.getMessage().hasText()) {
                 cmd.run();
             }
         } else if (update.hasCallbackQuery()) {
             //Handle update in case it was CallBackQuery
-            Commands cmd = new Commands(bot, update.getCallbackQuery().getMessage().getChatId(), update.getCallbackQuery().getMessage().getText());
+            Commands cmd = new Commands(bot, update.getCallbackQuery().getMessage());
             cmd.run();
             try {
                 //Send a "Button clicked" response to user, to be sure, it was clicked for real XD

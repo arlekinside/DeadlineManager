@@ -36,18 +36,33 @@ public class Commands {
                 }
             } else {
                 userInput = userInput.replaceAll("/start ", "");
-                calendar = new CalendarManager(this.bot,Users.getUser(chatID),userInput).updateUser();
-                try{
-                    bot.execute(new SendMessage().setChatId(chatID).setText("Google calendar was connected"));
+                calendar = new CalendarManager(this.bot, Users.getUser(chatID), userInput).updateUser();
+                try {
+                    bot.execute(new SendMessage().setChatId(chatID).setText("Google calendar was connected\n" +
+                                                                                "Use /addEvent to add a deadline"));
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
             }
-        } else if (Users.getUser(chatID).getBotStatus().equals("write")) {
-
+        } else if (Users.getUser(chatID).getBotStatus().equals("getEvent")) {
+            if (userInput.matches("\\S*\\s\\d{2}\\s\\d{2}")) {
+                System.out.println(true);
+                String[] input = userInput.split(" ");
+                if (calendar == null) {
+                    calendar = new CalendarManager(this.bot, Users.getUser(chatID), null);
+                }
+                calendar.addEvent(input[0],input[1],input[2]);
+                Users.getUser(chatID).setBotStatus("read").writeUser();
+            }else{
+                try {
+                    bot.execute(new SendMessage().setChatId(chatID)
+                                                .setText("Wrong input"));
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
-
     private void start() {
         InlineKeyboard kb = new InlineKeyboard()
                 .setChatID(chatID)
@@ -80,10 +95,19 @@ public class Commands {
         }
     }
     private void addEvent(){
-        if(calendar == null) {
-            calendar = new CalendarManager(this.bot,Users.getUser(chatID),null);
+        Users user = Users.getUser(chatID);
+        if(user.getBotStatus().equals("read")){
+            user.setBotStatus("getEvent").writeUser();
         }
-        calendar.addEvent();
+        try {
+            bot.execute(new SendMessage().setChatId(chatID)
+                    .setText("Enter an event in the following format\n" +
+                            "\"Deadline_Name Month Day\"\n" +
+                            "For example:\n" +
+                            "Programming 12 23"));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
     private String commandCutter(){
         if(userInput.contains(BotConfig.BOT_NAME)){

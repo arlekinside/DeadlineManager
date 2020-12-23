@@ -7,7 +7,10 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
 import org.json.JSONObject;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -31,24 +34,30 @@ public class CalendarManager {
         this.user = user;
         this.auth_code = auth_code;
     }
-    public void addEvent(){
+    public void addEvent(String summary, String month, String day){
         checkToken();
         if(user.getAccess_token() == null){
             errorMessage();
             return;
         }
         service = getService();
+        Event event = new Event()
+                .setSummary(summary);
+        DateTime startDateTime = new DateTime(java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)+"-"+month+"-"+day+"T00:00:00+02:00");
+        EventDateTime date = new EventDateTime()
+                .setDateTime(startDateTime)
+                .setTimeZone(java.util.Calendar.getInstance().getTimeZone().getID());
+        event.setStart(date);
+        DateTime endDateTime = new DateTime(java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)+"-"+month+"-"+day+"T23:59:59+02:00");
+        EventDateTime end = new EventDateTime()
+                .setDateTime(endDateTime)
+                .setTimeZone(java.util.Calendar.getInstance().getTimeZone().getID());
+        event.setEnd(end);
         try {
-            service.events().quickAdd("primary", "EVENT").execute();
-            try {
-                bot.execute(new SendMessage()
-                        .setChatId(user.getId())
-                        .setText("Event added")
-                );
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        } catch (IOException e) {
+            event = service.events().insert("primary", event).execute();
+            bot.execute(new SendMessage().setChatId(user.getId()).setText("Event added successfully!"));
+            bot.execute(new SendMessage().setChatId(user.getId()).setText("Link\n" + event.getHtmlLink()));
+        } catch (IOException | TelegramApiException e) {
             e.printStackTrace();
         }
     }
@@ -125,8 +134,6 @@ public class CalendarManager {
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
-
-        System.out.println(response.body());
         if(response.body().contains("Bad Request") || response.body().contains("Not Found")) throw new Exception("Access token couldn't be used");
         return response.body();
     }
